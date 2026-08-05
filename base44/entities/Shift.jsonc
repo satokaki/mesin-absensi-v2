@@ -1,0 +1,36 @@
+{
+  "name": "Shift",
+  "type": "object",
+  "properties": {
+    "kode": {
+      "type": "string"
+    },
+    "nama": {
+      "type": "string"
+    },
+    "jam_masuk": {
+      "type": "string"
+    },
+    "jam_keluar": {
+      "type": "string"
+    },
+    "istirahat_menit": {
+      "type": "number",
+      "default": 60
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "aktif",
+        "nonaktif"
+      ],
+      "default": "aktif"
+    }
+  },
+  "required": [
+    "kode",
+    "nama",
+    "jam_masuk",
+    "jam_keluar"
+  ]
+}

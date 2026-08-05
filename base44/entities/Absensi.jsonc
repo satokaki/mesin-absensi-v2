@@ -1,0 +1,64 @@
+{
+  "name": "Absensi",
+  "type": "object",
+  "properties": {
+    "karyawan_id": {
+      "type": "string"
+    },
+    "karyawan_nama": {
+      "type": "string"
+    },
+    "nik": {
+      "type": "string"
+    },
+    "tanggal": {
+      "type": "string",
+      "format": "date"
+    },
+    "jenis": {
+      "type": "string",
+      "enum": [
+        "hadir",
+        "terlambat",
+        "izin",
+        "sakit",
+        "cuti",
+        "alfa"
+      ],
+      "default": "hadir"
+    },
+    "check_in": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "check_out": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "lokasi_check_in": {
+      "type": "string"
+    },
+    "lokasi_check_out": {
+      "type": "string"
+    },
+    "latitude": {
+      "type": "number"
+    },
+    "longitude": {
+      "type": "number"
+    },
+    "foto_url": {
+      "type": "string"
+    },
+    "catatan": {
+      "type": "string"
+    },
+    "durasi_kerja": {
+      "type": "number"
+    }
+  },
+  "required": [
+    "karyawan_id",
+    "tanggal"
+  ]
+}

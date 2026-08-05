@@ -1,0 +1,66 @@
+{
+  "name": "Pinjaman",
+  "type": "object",
+  "properties": {
+    "karyawan_id": {
+      "type": "string"
+    },
+    "karyawan_nama": {
+      "type": "string"
+    },
+    "jenis_pinjaman": {
+      "type": "string"
+    },
+    "jumlah_pinjaman": {
+      "type": "number",
+      "default": 0
+    },
+    "bunga_persen": {
+      "type": "number",
+      "default": 0
+    },
+    "tenor_bulan": {
+      "type": "number",
+      "default": 1
+    },
+    "cicilan_per_bulan": {
+      "type": "number",
+      "default": 0
+    },
+    "tanggal_pengajuan": {
+      "type": "string",
+      "format": "date"
+    },
+    "tanggal_disetujui": {
+      "type": "string",
+      "format": "date"
+    },
+    "alasan": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "disetujui",
+        "ditolak",
+        "aktif",
+        "lunas",
+        "dibatalkan"
+      ],
+      "default": "pending"
+    },
+    "sisa_pokok": {
+      "type": "number",
+      "default": 0
+    },
+    "disetujui_oleh": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "karyawan_id",
+    "jumlah_pinjaman",
+    "tenor_bulan"
+  ]
+}

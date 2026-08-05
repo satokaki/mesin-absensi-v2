@@ -1,0 +1,63 @@
+{
+  "name": "Kunjungan",
+  "type": "object",
+  "properties": {
+    "karyawan_id": {
+      "type": "string"
+    },
+    "karyawan_nama": {
+      "type": "string"
+    },
+    "tanggal": {
+      "type": "string",
+      "format": "date"
+    },
+    "tujuan": {
+      "type": "string"
+    },
+    "alamat_kunjungan": {
+      "type": "string"
+    },
+    "pic_nama": {
+      "type": "string"
+    },
+    "pic_kontak": {
+      "type": "string"
+    },
+    "check_in": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "check_out": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "latitude": {
+      "type": "number"
+    },
+    "longitude": {
+      "type": "number"
+    },
+    "hasil_kunjungan": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "direncanakan",
+        "berlangsung",
+        "selesai",
+        "dibatalkan"
+      ],
+      "default": "direncanakan"
+    },
+    "catatan": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "karyawan_id",
+    "tanggal",
+    "tujuan"
+  ]
+}

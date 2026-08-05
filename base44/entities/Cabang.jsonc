@@ -1,0 +1,33 @@
+{
+  "name": "Cabang",
+  "type": "object",
+  "properties": {
+    "kode": {
+      "type": "string"
+    },
+    "nama": {
+      "type": "string"
+    },
+    "alamat": {
+      "type": "string"
+    },
+    "telepon": {
+      "type": "string"
+    },
+    "kota": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "aktif",
+        "nonaktif"
+      ],
+      "default": "aktif"
+    }
+  },
+  "required": [
+    "kode",
+    "nama"
+  ]
+}

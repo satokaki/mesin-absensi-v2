@@ -1,0 +1,42 @@
+{
+  "name": "Jabatan",
+  "type": "object",
+  "properties": {
+    "kode": {
+      "type": "string"
+    },
+    "nama": {
+      "type": "string"
+    },
+    "level": {
+      "type": "string",
+      "enum": [
+        "staff",
+        "supervisor",
+        "manager",
+        "direktur"
+      ],
+      "default": "staff"
+    },
+    "gaji_pokok_min": {
+      "type": "number",
+      "default": 0
+    },
+    "gaji_pokok_max": {
+      "type": "number",
+      "default": 0
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "aktif",
+        "nonaktif"
+      ],
+      "default": "aktif"
+    }
+  },
+  "required": [
+    "kode",
+    "nama"
+  ]
+}

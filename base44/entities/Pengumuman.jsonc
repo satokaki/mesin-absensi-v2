@@ -1,0 +1,58 @@
+{
+  "name": "Pengumuman",
+  "type": "object",
+  "properties": {
+    "judul": {
+      "type": "string"
+    },
+    "isi": {
+      "type": "string"
+    },
+    "kategori": {
+      "type": "string",
+      "enum": [
+        "umum",
+        "urgent",
+        "event",
+        "kebijakan"
+      ],
+      "default": "umum"
+    },
+    "target": {
+      "type": "string",
+      "enum": [
+        "semua",
+        "cabang",
+        "departemen"
+      ],
+      "default": "semua"
+    },
+    "target_nama": {
+      "type": "string"
+    },
+    "tanggal_mulai": {
+      "type": "string",
+      "format": "date"
+    },
+    "tanggal_selesai": {
+      "type": "string",
+      "format": "date"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "aktif",
+        "arsip"
+      ],
+      "default": "aktif"
+    },
+    "dibuat_oleh": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "judul",
+    "isi"
+  ]
+}

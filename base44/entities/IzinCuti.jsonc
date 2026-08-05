@@ -1,0 +1,63 @@
+{
+  "name": "IzinCuti",
+  "type": "object",
+  "properties": {
+    "karyawan_id": {
+      "type": "string"
+    },
+    "karyawan_nama": {
+      "type": "string"
+    },
+    "jenis": {
+      "type": "string",
+      "enum": [
+        "izin",
+        "sakit",
+        "cuti_tahunan",
+        "cuti_besar",
+        "cuti_melahirkan"
+      ],
+      "default": "izin"
+    },
+    "tanggal_mulai": {
+      "type": "string",
+      "format": "date"
+    },
+    "tanggal_selesai": {
+      "type": "string",
+      "format": "date"
+    },
+    "jumlah_hari": {
+      "type": "number",
+      "default": 1
+    },
+    "alasan": {
+      "type": "string"
+    },
+    "lampiran_url": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "disetujui",
+        "ditolak",
+        "dibatalkan"
+      ],
+      "default": "pending"
+    },
+    "disetujui_oleh": {
+      "type": "string"
+    },
+    "catatan_approver": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "karyawan_id",
+    "jenis",
+    "tanggal_mulai",
+    "tanggal_selesai"
+  ]
+}

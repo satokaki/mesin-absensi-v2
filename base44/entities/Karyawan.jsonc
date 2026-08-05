@@ -1,0 +1,82 @@
+{
+  "name": "Karyawan",
+  "type": "object",
+  "properties": {
+    "nik": {
+      "type": "string"
+    },
+    "nama_lengkap": {
+      "type": "string"
+    },
+    "email": {
+      "type": "string",
+      "format": "email"
+    },
+    "telepon": {
+      "type": "string"
+    },
+    "jenis_kelamin": {
+      "type": "string",
+      "enum": [
+        "L",
+        "P"
+      ],
+      "default": "L"
+    },
+    "tanggal_lahir": {
+      "type": "string",
+      "format": "date"
+    },
+    "alamat": {
+      "type": "string"
+    },
+    "cabang_id": {
+      "type": "string"
+    },
+    "cabang_nama": {
+      "type": "string"
+    },
+    "departemen_id": {
+      "type": "string"
+    },
+    "departemen_nama": {
+      "type": "string"
+    },
+    "jabatan_id": {
+      "type": "string"
+    },
+    "jabatan_nama": {
+      "type": "string"
+    },
+    "shift_id": {
+      "type": "string"
+    },
+    "shift_nama": {
+      "type": "string"
+    },
+    "tanggal_masuk": {
+      "type": "string",
+      "format": "date"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "aktif",
+        "nonaktif",
+        "cuti"
+      ],
+      "default": "aktif"
+    },
+    "gaji_pokok": {
+      "type": "number",
+      "default": 0
+    },
+    "foto_url": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "nik",
+    "nama_lengkap"
+  ]
+}

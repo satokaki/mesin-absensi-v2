@@ -1,0 +1,30 @@
+{
+  "name": "Departemen",
+  "type": "object",
+  "properties": {
+    "kode": {
+      "type": "string"
+    },
+    "nama": {
+      "type": "string"
+    },
+    "cabang_id": {
+      "type": "string"
+    },
+    "cabang_nama": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "aktif",
+        "nonaktif"
+      ],
+      "default": "aktif"
+    }
+  },
+  "required": [
+    "kode",
+    "nama"
+  ]
+}
