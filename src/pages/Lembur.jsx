@@ -9,10 +9,14 @@ import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Plus, Clock, Check, X } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
+import { useCompany } from "@/lib/CompanyContext";
+import { companyFilter, companyPayload } from "@/lib/tenant";
+import { withGeneratedCode } from "@/lib/codeGenerator";
 
 export default function Lembur() {
   const { user } = useAuth();
   const { toast } = useToast();
+  const { activeCompany } = useCompany();
   const [list, setList] = useState([]);
   const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState(false);
@@ -20,11 +24,11 @@ export default function Lembur() {
   const [form, setForm] = useState({ tanggal: new Date().toISOString().split("T")[0], jam_mulai: "17:00", jam_selesai: "19:00", alasan: "", tarif_per_jam: 25000 });
 
   const loadData = async () => {
-    try { setList(await base44.entities.Lembur.list("-created_date", 50)); }
+    try { setList(activeCompany?.id ? await base44.entities.Lembur.filter(companyFilter(activeCompany), "-created_date", 50) : []); }
     catch (e) { console.error(e); }
     finally { setLoading(false); }
   };
-  useEffect(() => { loadData(); }, []);
+  useEffect(() => { loadData(); }, [activeCompany?.id]);
 
   const calcDurasi = (mulai, selesai) => {
     const [h1, m1] = mulai.split(":").map(Number);
@@ -40,7 +44,7 @@ export default function Lembur() {
     const durasi = calcDurasi(form.jam_mulai, form.jam_selesai);
     const total = durasi * Number(form.tarif_per_jam);
     try {
-      await base44.entities.Lembur.create({ karyawan_id: user?.id, karyawan_nama: user?.full_name || user?.email, ...form, tarif_per_jam: Number(form.tarif_per_jam), durasi_jam: durasi, total_upah: total, status: "pending" });
+      await base44.entities.Lembur.create(withGeneratedCode("lembur", "kode_lembur", activeCompany, companyPayload(activeCompany, { karyawan_id: user?.id, karyawan_nama: user?.full_name || user?.email, ...form, tarif_per_jam: Number(form.tarif_per_jam), durasi_jam: durasi, total_upah: total, status: "pending" })));
       toast({ title: "Lembur diajukan" });
       setOpen(false); setForm({ tanggal: new Date().toISOString().split("T")[0], jam_mulai: "17:00", jam_selesai: "19:00", alasan: "", tarif_per_jam: 25000 });
       loadData();
