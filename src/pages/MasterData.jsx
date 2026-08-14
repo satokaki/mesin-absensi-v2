@@ -7,6 +7,8 @@ import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Plus, Building2, Layers, Briefcase, Clock3, Pencil, Trash2 } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
+import { useCompany } from "@/lib/CompanyContext";
+import { assertCompanyOwnership, companyFilter, companyPayload } from "@/lib/tenant";
 
 const TABS = [
   { key: "cabang", label: "Cabang", entity: "Cabang", icon: Building2 },
@@ -17,6 +19,7 @@ const TABS = [
 
 export default function MasterData() {
   const { toast } = useToast();
+  const { activeCompany } = useCompany();
   const [tab, setTab] = useState("cabang");
   const [data, setData] = useState({});
   const [loading, setLoading] = useState(true);
@@ -26,8 +29,17 @@ export default function MasterData() {
   const [busy, setBusy] = useState(false);
 
   const loadAll = async () => {
+    if (!activeCompany?.id) {
+      setData({});
+      setLoading(false);
+      return;
+    }
+
+    setLoading(true);
     try {
-      const entries = await Promise.all(TABS.map((t) => base44.entities[t.entity].list()));
+      const entries = await Promise.all(
+        TABS.map((t) => base44.entities[t.entity].filter(companyFilter(activeCompany)))
+      );
       const map = {};
       TABS.forEach((t, i) => { map[t.key] = entries[i]; });
       setData(map);
@@ -35,7 +47,7 @@ export default function MasterData() {
     finally { setLoading(false); }
   };
 
-  useEffect(() => { loadAll(); }, []);
+  useEffect(() => { loadAll(); }, [activeCompany?.id]);
 
   const activeTab = TABS.find((t) => t.key === tab);
   const items = data[tab] || [];
@@ -48,10 +60,11 @@ export default function MasterData() {
     setBusy(true);
     try {
       if (editId) {
-        await base44.entities[activeTab.entity].update(editId, form);
+        assertCompanyOwnership(activeCompany, form);
+        await base44.entities[activeTab.entity].update(editId, companyPayload(activeCompany, form));
         toast({ title: "Diperbarui" });
       } else {
-        await base44.entities[activeTab.entity].create(form);
+        await base44.entities[activeTab.entity].create(companyPayload(activeCompany, form));
         toast({ title: "Ditambahkan" });
       }
       setOpen(false);
@@ -62,6 +75,8 @@ export default function MasterData() {
   };
 
   const handleDelete = async (id) => {
+    const record = items.find((item) => item.id === id);
+    assertCompanyOwnership(activeCompany, record);
     await base44.entities[activeTab.entity].delete(id);
     toast({ title: "Dihapus" });
     loadAll();
