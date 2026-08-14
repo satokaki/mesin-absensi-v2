@@ -1,0 +1,27 @@
+{
+  "name": "Perusahaan",
+  "type": "object",
+  "properties": {
+    "kode": { "type": "string" },
+    "nama": { "type": "string" },
+    "nama_legal": { "type": "string" },
+    "logo_url": { "type": "string" },
+    "alamat": { "type": "string" },
+    "kota": { "type": "string" },
+    "provinsi": { "type": "string" },
+    "kode_pos": { "type": "string" },
+    "telepon": { "type": "string" },
+    "email": { "type": "string", "format": "email" },
+    "npwp": { "type": "string" },
+    "mata_uang": { "type": "string", "default": "IDR" },
+    "zona_waktu": { "type": "string", "default": "Asia/Jakarta" },
+    "status": {
+      "type": "string",
+      "enum": ["aktif", "nonaktif"],
+      "default": "aktif"
+    },
+    "pengaturan_payroll": { "type": "object" },
+    "pengaturan_absensi": { "type": "object" }
+  },
+  "required": ["kode", "nama", "status"]
+}
