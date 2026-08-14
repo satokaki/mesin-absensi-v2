@@ -10,10 +10,14 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Plus, CalendarClock, Check, X } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
+import { useCompany } from "@/lib/CompanyContext";
+import { companyFilter, companyPayload } from "@/lib/tenant";
+import { withGeneratedCode } from "@/lib/codeGenerator";
 
 export default function IzinCuti() {
   const { user } = useAuth();
   const { toast } = useToast();
+  const { activeCompany } = useCompany();
   const [list, setList] = useState([]);
   const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState(false);
@@ -21,11 +25,11 @@ export default function IzinCuti() {
   const [form, setForm] = useState({ jenis: "izin", tanggal_mulai: new Date().toISOString().split("T")[0], tanggal_selesai: new Date().toISOString().split("T")[0], alasan: "" });
 
   const loadData = async () => {
-    try { setList(await base44.entities.IzinCuti.list("-created_date", 50)); }
+    try { setList(activeCompany?.id ? await base44.entities.IzinCuti.filter(companyFilter(activeCompany), "-created_date", 50) : []); }
     catch (e) { console.error(e); }
     finally { setLoading(false); }
   };
-  useEffect(() => { loadData(); }, []);
+  useEffect(() => { loadData(); }, [activeCompany?.id]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -34,7 +38,7 @@ export default function IzinCuti() {
     const selesai = new Date(form.tanggal_selesai);
     const jumlah = Math.max(1, Math.round((selesai - mulai) / 86400000) + 1);
     try {
-      await base44.entities.IzinCuti.create({ karyawan_id: user?.id, karyawan_nama: user?.full_name || user?.email, ...form, jumlah_hari: jumlah, status: "pending" });
+      await base44.entities.IzinCuti.create(withGeneratedCode("izin", "kode_izin", activeCompany, companyPayload(activeCompany, { karyawan_id: user?.id, karyawan_nama: user?.full_name || user?.email, ...form, jumlah_hari: jumlah, status: "pending" })));
       toast({ title: "Pengajuan dibuat" });
       setOpen(false); setForm({ jenis: "izin", tanggal_mulai: new Date().toISOString().split("T")[0], tanggal_selesai: new Date().toISOString().split("T")[0], alasan: "" });
       loadData();
