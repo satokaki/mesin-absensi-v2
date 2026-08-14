@@ -10,10 +10,14 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Plus, Megaphone, Trash2, AlertCircle } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
+import { useCompany } from "@/lib/CompanyContext";
+import { companyFilter, companyPayload } from "@/lib/tenant";
+import { withGeneratedCode } from "@/lib/codeGenerator";
 
 export default function Pengumuman() {
   const { user } = useAuth();
   const { toast } = useToast();
+  const { activeCompany } = useCompany();
   const [list, setList] = useState([]);
   const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState(false);
@@ -21,17 +25,17 @@ export default function Pengumuman() {
   const [form, setForm] = useState({ judul: "", isi: "", kategori: "umum", target: "semua", status: "aktif" });
 
   const loadData = async () => {
-    try { setList(await base44.entities.Pengumuman.list("-created_date", 50)); }
+    try { setList(activeCompany?.id ? await base44.entities.Pengumuman.filter(companyFilter(activeCompany), "-created_date", 50) : []); }
     catch (e) { console.error(e); }
     finally { setLoading(false); }
   };
-  useEffect(() => { loadData(); }, []);
+  useEffect(() => { loadData(); }, [activeCompany?.id]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setBusy(true);
     try {
-      await base44.entities.Pengumuman.create({ ...form, dibuat_oleh: user?.full_name || user?.email, tanggal_mulai: new Date().toISOString().split("T")[0] });
+      await base44.entities.Pengumuman.create(withGeneratedCode("pengumuman", "kode_pengumuman", activeCompany, companyPayload(activeCompany, { ...form, dibuat_oleh: user?.full_name || user?.email, tanggal_mulai: new Date().toISOString().split("T")[0] })));
       toast({ title: "Pengumuman dibuat" });
       setOpen(false); setForm({ judul: "", isi: "", kategori: "umum", target: "semua", status: "aktif" });
       loadData();
