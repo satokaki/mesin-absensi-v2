@@ -27,6 +27,7 @@ import Laporan from '@/pages/Laporan';
 import Pengaturan from '@/pages/Pengaturan';
 import Administrator from '@/pages/Administrator';
 import MasterPerusahaan from '@/pages/MasterPerusahaan';
+import TitikAbsensi from '@/pages/TitikAbsensi';
 import StructureSection from '@/pages/StructureSection';
 import { sectionRoutes } from '@/lib/moduleStructure';
 import { Navigate } from 'react-router-dom';
@@ -77,6 +78,7 @@ const AuthenticatedApp = () => {
           <Route path="/pengaturan" element={<Pengaturan />} />
           <Route path="/administrator" element={<Administrator />} />
           <Route path="/master-data/perusahaan" element={<MasterPerusahaan />} />
+          <Route path="/master-data/titik-absensi" element={<TitikAbsensi />} />
           {sectionRoutes.map((item) => (
             <Route
               key={item.path}
