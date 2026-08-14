@@ -2,12 +2,15 @@ import React, { useEffect, useState } from "react";
 import { base44 } from "@/api/base44Client";
 import PageHeader from "@/components/PageHeader";
 import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { FileBarChart, Download, Fingerprint, MapPin, Landmark, CalendarClock, Clock } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
+import { useCompany } from "@/lib/CompanyContext";
+import { companyFilter, companyPayload } from "@/lib/tenant";
+import { generateBusinessCode } from "@/lib/codeGenerator";
 
 export default function Laporan() {
   const { toast } = useToast();
+  const { activeCompany } = useCompany();
   const [type, setType] = useState("absensi");
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -17,23 +20,25 @@ export default function Laporan() {
 
   const loadData = async () => {
     setLoading(true);
-    try { setData(await base44.entities[entityMap[type]].list("-created_date", 100)); }
+    try { setData(activeCompany?.id ? await base44.entities[entityMap[type]].filter(companyFilter(activeCompany), "-created_date", 100) : []); }
     catch (e) { console.error(e); }
     finally { setLoading(false); }
   };
 
-  useEffect(() => { loadData(); }, [type]);
+  useEffect(() => { loadData(); }, [type, activeCompany?.id]);
 
-  const exportCSV = () => {
+  const exportCSV = async () => {
     if (!data.length) return;
+    const reportCode = generateBusinessCode("laporan", activeCompany);
     const headers = Object.keys(data[0]).filter((k) => !k.startsWith("_"));
     const rows = data.map((r) => headers.map((h) => `"${String(r[h] ?? "").replace(/"/g, '""')}"`).join(","));
     const csv = [headers.join(","), ...rows].join("\n");
     const blob = new Blob([csv], { type: "text/csv" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
-    a.href = url; a.download = `laporan-${type}-${new Date().toISOString().split("T")[0]}.csv`; a.click();
-    toast({ title: "CSV diunduh" });
+    a.href = url; a.download = `${reportCode}-${type}.csv`; a.click();
+    await base44.entities.LaporanExport.create(companyPayload(activeCompany, { kode_laporan: reportCode, jenis: type, dibuat_pada: new Date().toISOString(), jumlah_data: data.length }));
+    toast({ title: "CSV diunduh", description: `Kode laporan: ${reportCode}` });
   };
 
   const Icon = iconMap[type];
