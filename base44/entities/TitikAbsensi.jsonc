@@ -1,0 +1,18 @@
+{
+  "name": "TitikAbsensi",
+  "type": "object",
+  "properties": {
+    "kode": { "type": "string" },
+    "company_id": { "type": "string" },
+    "company_nama": { "type": "string" },
+    "cabang_id": { "type": "string" },
+    "cabang_nama": { "type": "string" },
+    "nama": { "type": "string" },
+    "alamat": { "type": "string" },
+    "latitude": { "type": "number" },
+    "longitude": { "type": "number" },
+    "radius_meter": { "type": "number", "default": 100 },
+    "status": { "type": "string", "enum": ["aktif", "nonaktif"], "default": "aktif" }
+  },
+  "required": ["kode", "company_id", "cabang_id", "nama", "latitude", "longitude", "radius_meter"]
+}
