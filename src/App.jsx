@@ -4,6 +4,7 @@ import { queryClientInstance } from '@/lib/query-client'
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
+import { CompanyProvider } from '@/lib/CompanyContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import ScrollToTop from './components/ScrollToTop';
 import ProtectedRoute from '@/components/ProtectedRoute';
@@ -25,6 +26,9 @@ import Pengumuman from '@/pages/Pengumuman';
 import Laporan from '@/pages/Laporan';
 import Pengaturan from '@/pages/Pengaturan';
 import Administrator from '@/pages/Administrator';
+import MasterPerusahaan from '@/pages/MasterPerusahaan';
+import StructureSection from '@/pages/StructureSection';
+import { sectionRoutes } from '@/lib/moduleStructure';
 import { Navigate } from 'react-router-dom';
 
 const AuthenticatedApp = () => {
@@ -72,6 +76,14 @@ const AuthenticatedApp = () => {
           <Route path="/laporan" element={<Laporan />} />
           <Route path="/pengaturan" element={<Pengaturan />} />
           <Route path="/administrator" element={<Administrator />} />
+          <Route path="/master-data/perusahaan" element={<MasterPerusahaan />} />
+          {sectionRoutes.map((item) => (
+            <Route
+              key={item.path}
+              path={item.path}
+              element={<StructureSection {...item} />}
+            />
+          ))}
         </Route>
       </Route>
       <Route path="*" element={<PageNotFound />} />
@@ -84,13 +96,15 @@ function App() {
 
   return (
     <AuthProvider>
-      <QueryClientProvider client={queryClientInstance}>
-        <Router>
-          <ScrollToTop />
-          <AuthenticatedApp />
-        </Router>
-        <Toaster />
-      </QueryClientProvider>
+      <CompanyProvider>
+        <QueryClientProvider client={queryClientInstance}>
+          <Router>
+            <ScrollToTop />
+            <AuthenticatedApp />
+          </Router>
+          <Toaster />
+        </QueryClientProvider>
+      </CompanyProvider>
     </AuthProvider>
   )
 }
