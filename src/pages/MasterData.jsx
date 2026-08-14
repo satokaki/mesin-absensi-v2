@@ -9,6 +9,7 @@ import { Plus, Building2, Layers, Briefcase, Clock3, Pencil, Trash2 } from "luci
 import { useToast } from "@/components/ui/use-toast";
 import { useCompany } from "@/lib/CompanyContext";
 import { assertCompanyOwnership, companyFilter, companyPayload } from "@/lib/tenant";
+import { withGeneratedCode } from "@/lib/codeGenerator";
 
 const TABS = [
   { key: "cabang", label: "Cabang", entity: "Cabang", icon: Building2 },
@@ -64,7 +65,10 @@ export default function MasterData() {
         await base44.entities[activeTab.entity].update(editId, companyPayload(activeCompany, form));
         toast({ title: "Diperbarui" });
       } else {
-        await base44.entities[activeTab.entity].create(companyPayload(activeCompany, form));
+        const payload = companyPayload(activeCompany, form);
+        await base44.entities[activeTab.entity].create(
+          withGeneratedCode(activeTab.key, "kode", activeCompany, payload)
+        );
         toast({ title: "Ditambahkan" });
       }
       setOpen(false);
@@ -102,7 +106,7 @@ export default function MasterData() {
               {fields[tab].map(([key, label]) => (
                 <div key={key}>
                   <Label>{label}</Label>
-                  <Input required={key === "kode" || key === "nama"} value={form[key] || ""} onChange={(e) => setForm({ ...form, [key]: e.target.value })} />
+                  <Input required={key === "nama"} placeholder={key === "kode" ? "Otomatis jika kosong" : undefined} value={form[key] || ""} onChange={(e) => setForm({ ...form, [key]: e.target.value })} />
                 </div>
               ))}
               <Button type="submit" disabled={busy} className="w-full bg-indigo-600 hover:bg-indigo-700">Simpan</Button>
