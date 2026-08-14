@@ -2,6 +2,9 @@
   "name": "Pengumuman",
   "type": "object",
   "properties": {
+    "kode_pengumuman": { "type": "string" },
+    "company_id": { "type": "string" },
+    "company_nama": { "type": "string" },
     "judul": {
       "type": "string"
     },
