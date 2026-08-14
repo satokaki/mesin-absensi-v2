@@ -20,6 +20,7 @@ import DataKaryawan from '@/pages/DataKaryawan';
 import IzinCuti from '@/pages/IzinCuti';
 import Lembur from '@/pages/Lembur';
 import Pinjaman from '@/pages/Pinjaman';
+import Payrolls from '@/pages/Payrolls';
 import Pengumuman from '@/pages/Pengumuman';
 import Laporan from '@/pages/Laporan';
 import Pengaturan from '@/pages/Pengaturan';
@@ -66,6 +67,7 @@ const AuthenticatedApp = () => {
           <Route path="/izin-cuti" element={<IzinCuti />} />
           <Route path="/lembur" element={<Lembur />} />
           <Route path="/pinjaman" element={<Pinjaman />} />
+          <Route path="/payrolls" element={<Payrolls />} />
           <Route path="/pengumuman" element={<Pengumuman />} />
           <Route path="/laporan" element={<Laporan />} />
           <Route path="/pengaturan" element={<Pengaturan />} />
