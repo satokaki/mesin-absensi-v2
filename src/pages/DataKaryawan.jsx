@@ -10,6 +10,7 @@ import { Plus, Search, Users, Phone, Mail } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { useCompany } from "@/lib/CompanyContext";
 import { companyFilter, companyPayload } from "@/lib/tenant";
+import { withGeneratedCode } from "@/lib/codeGenerator";
 
 export default function DataKaryawan() {
   const { toast } = useToast();
@@ -56,14 +57,17 @@ export default function DataKaryawan() {
       const dep = departemen.find((d) => d.id === form.departemen_id);
       const jab = jabatan.find((j) => j.id === form.jabatan_id);
       const sh = shift.find((s) => s.id === form.shift_id);
-      await base44.entities.Karyawan.create(companyPayload(activeCompany, {
+      const payload = companyPayload(activeCompany, {
         ...form,
         gaji_pokok: Number(form.gaji_pokok),
         cabang_nama: cab?.nama,
         departemen_nama: dep?.nama,
         jabatan_nama: jab?.nama,
         shift_nama: sh?.nama,
-      }));
+      });
+      await base44.entities.Karyawan.create(
+        withGeneratedCode("karyawan", "nik", activeCompany, payload)
+      );
       toast({ title: "Karyawan ditambahkan" });
       setOpen(false);
       setForm({ nik: "", nama_lengkap: "", email: "", telepon: "", jenis_kelamin: "L", tanggal_masuk: new Date().toISOString().split("T")[0], gaji_pokok: 0, status: "aktif", cabang_id: "", departemen_id: "", jabatan_id: "", shift_id: "" });
@@ -88,7 +92,7 @@ export default function DataKaryawan() {
             <DialogHeader><DialogTitle>Tambah Karyawan</DialogTitle></DialogHeader>
             <form onSubmit={handleSubmit} className="space-y-3">
               <div className="grid grid-cols-2 gap-3">
-                <div><Label>NIK</Label><Input required value={form.nik} onChange={(e) => setForm({ ...form, nik: e.target.value })} /></div>
+                <div><Label>Kode Karyawan / NIK</Label><Input placeholder="Otomatis jika kosong" value={form.nik} onChange={(e) => setForm({ ...form, nik: e.target.value })} /></div>
                 <div><Label>Nama Lengkap</Label><Input required value={form.nama_lengkap} onChange={(e) => setForm({ ...form, nama_lengkap: e.target.value })} /></div>
               </div>
               <div className="grid grid-cols-2 gap-3">
