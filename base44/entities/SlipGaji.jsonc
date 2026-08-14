@@ -1,0 +1,9 @@
+{
+  "name": "SlipGaji", "type": "object",
+  "properties": {
+    "kode_slip": { "type": "string" }, "company_id": { "type": "string" }, "company_nama": { "type": "string" },
+    "payroll_id": { "type": "string" }, "karyawan_id": { "type": "string" }, "karyawan_nama": { "type": "string" },
+    "periode": { "type": "string" }, "total_netto": { "type": "number", "default": 0 }, "file_url": { "type": "string" }
+  },
+  "required": ["kode_slip", "company_id", "payroll_id", "karyawan_id", "periode"]
+}
