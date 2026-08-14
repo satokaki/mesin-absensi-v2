@@ -2,6 +2,9 @@
   "name": "Lembur",
   "type": "object",
   "properties": {
+    "kode_lembur": { "type": "string" },
+    "company_id": { "type": "string" },
+    "company_nama": { "type": "string" },
     "karyawan_id": {
       "type": "string"
     },
