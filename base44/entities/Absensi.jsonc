@@ -2,6 +2,15 @@
   "name": "Absensi",
   "type": "object",
   "properties": {
+    "kode_absensi": { "type": "string" },
+    "company_id": { "type": "string" },
+    "company_nama": { "type": "string" },
+    "cabang_id": { "type": "string" },
+    "cabang_nama": { "type": "string" },
+    "shift_id": { "type": "string" },
+    "shift_nama": { "type": "string" },
+    "titik_absensi_id": { "type": "string" },
+    "titik_absensi_nama": { "type": "string" },
     "karyawan_id": {
       "type": "string"
     },
@@ -47,6 +56,20 @@
     "longitude": {
       "type": "number"
     },
+    "latitude_check_in": { "type": "number" },
+    "longitude_check_in": { "type": "number" },
+    "akurasi_check_in": { "type": "number" },
+    "jarak_check_in": { "type": "number" },
+    "selfie_check_in_url": { "type": "string" },
+    "latitude_check_out": { "type": "number" },
+    "longitude_check_out": { "type": "number" },
+    "akurasi_check_out": { "type": "number" },
+    "jarak_check_out": { "type": "number" },
+    "selfie_check_out_url": { "type": "string" },
+    "status_approval": { "type": "string", "enum": ["pending", "disetujui", "ditolak"], "default": "pending" },
+    "approved_by": { "type": "string" },
+    "approved_at": { "type": "string", "format": "date-time" },
+    "alasan_approval": { "type": "string" },
     "foto_url": {
       "type": "string"
     },
