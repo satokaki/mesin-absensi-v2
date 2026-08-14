@@ -2,6 +2,8 @@
   "name": "Jabatan",
   "type": "object",
   "properties": {
+    "company_id": { "type": "string" },
+    "company_nama": { "type": "string" },
     "kode": {
       "type": "string"
     },
