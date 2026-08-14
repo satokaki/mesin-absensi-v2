@@ -1,6 +1,8 @@
-import React, { useState } from "react";
-import { Outlet, NavLink, useNavigate } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { Outlet, NavLink, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/lib/AuthContext";
+import { moduleStructure, slugifySection } from "@/lib/moduleStructure";
+import CompanySwitcher from "@/components/CompanySwitcher";
 import {
   LayoutDashboard,
   Fingerprint,
@@ -18,103 +20,57 @@ import {
   LogOut,
   Menu,
   Bell,
+  ChevronDown,
 } from "lucide-react";
 
-const navSections = [
-  {
-    label: "Utama",
-    items: [
-      {
-        to: "/",
-        label: "Dashboard",
-        icon: LayoutDashboard,
-        end: true,
-      },
-      {
-        to: "/absensi",
-        label: "Absensi",
-        icon: Fingerprint,
-      },
-      {
-        to: "/kunjungan",
-        label: "Kunjungan",
-        icon: MapPin,
-      },
-    ],
-  },
+const moduleIcons = {
+  Dashboard: LayoutDashboard,
+  Absensi: Fingerprint,
+  Kunjungan: MapPin,
+  "Master Data": Database,
+  "Data Karyawan": Users,
+  Payroll: Wallet,
+  "Pinjaman Karyawan": Landmark,
+  "Izin & Cuti": CalendarClock,
+  Lembur: Clock,
+  Pengumuman: Megaphone,
+  Laporan: FileBarChart,
+  Pengaturan: Settings,
+  Administrator: Shield,
+};
 
-  {
-    label: "Manajemen",
-    items: [
-      {
-        to: "/master-data",
-        label: "Master Data",
-        icon: Database,
-      },
-      {
-        to: "/karyawan",
-        label: "Data Karyawan",
-        icon: Users,
-      },
-      {
-        to: "/izin-cuti",
-        label: "Izin & Cuti",
-        icon: CalendarClock,
-      },
-      {
-        to: "/lembur",
-        label: "Lembur",
-        icon: Clock,
-      },
-      {
-        to: "/pinjaman",
-        label: "Pinjaman",
-        icon: Landmark,
-      },
-
-      // PAYROLL
-      {
-        to: "/payrolls",
-        label: "Payroll",
-        icon: Wallet,
-      },
-
-      {
-        to: "/pengumuman",
-        label: "Pengumuman",
-        icon: Megaphone,
-      },
-    ],
-  },
-
-  {
-    label: "Sistem",
-    items: [
-      {
-        to: "/laporan",
-        label: "Laporan",
-        icon: FileBarChart,
-      },
-      {
-        to: "/pengaturan",
-        label: "Pengaturan",
-        icon: Settings,
-      },
-      {
-        to: "/administrator",
-        label: "Administrator",
-        icon: Shield,
-      },
-    ],
-  },
-];
+const navSections = moduleStructure.map(({ group, modules }) => ({
+  label: group,
+  items: modules.map((item) => ({
+    ...item,
+    to: item.path,
+    icon: moduleIcons[item.label],
+    end: item.path === "/",
+  })),
+}));
 
 export default function Layout() {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const location = useLocation();
+  const [expanded, setExpanded] = useState({});
 
   const { user, logout } = useAuth();
 
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const active = navSections
+      .flatMap((section) => section.items)
+      .find((item) =>
+        item.to === "/"
+          ? location.pathname === "/" || location.pathname.startsWith("/dashboard/")
+          : location.pathname === item.to || location.pathname.startsWith(`${item.to}/`)
+      );
+
+    if (active) {
+      setExpanded((current) => ({ ...current, [active.to]: true }));
+    }
+  }, [location.pathname]);
 
   const handleLogout = () => {
     logout(false);
@@ -155,36 +111,66 @@ export default function Layout() {
 
             <div className="space-y-0.5">
 
-              {section.items.map(
-                ({
-                  to,
-                  label,
-                  icon: Icon,
-                  end,
-                }) => (
+              {section.items.map(({ to, label, icon: Icon, end, sections }) => {
+                const isExpanded = !!expanded[to];
 
-                  <NavLink
-                    key={to}
-                    to={to}
-                    end={end}
-                    onClick={() => setMobileOpen(false)}
-                    className={({ isActive }) =>
-                      `flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${
-                        isActive
-                          ? "bg-indigo-500/15 text-indigo-300 shadow-sm"
-                          : "text-slate-400 hover:bg-slate-800/60 hover:text-slate-200"
-                      }`
-                    }
-                  >
+                return (
+                  <div key={to}>
+                    <div className="flex items-center gap-1">
+                      <NavLink
+                        to={to}
+                        end={end}
+                        onClick={() => setMobileOpen(false)}
+                        className={({ isActive }) =>
+                          `flex-1 flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${
+                            isActive
+                              ? "bg-indigo-500/15 text-indigo-300 shadow-sm"
+                              : "text-slate-400 hover:bg-slate-800/60 hover:text-slate-200"
+                          }`
+                        }
+                      >
+                        <Icon className="w-[18px] h-[18px] shrink-0" />
+                        {label}
+                      </NavLink>
 
-                    <Icon className="w-[18px] h-[18px] shrink-0" />
+                      <button
+                        type="button"
+                        aria-label={`${isExpanded ? "Tutup" : "Buka"} submenu ${label}`}
+                        aria-expanded={isExpanded}
+                        onClick={() => setExpanded((current) => ({ ...current, [to]: !current[to] }))}
+                        className="p-2 rounded-lg text-slate-500 hover:text-slate-200 hover:bg-slate-800/60"
+                      >
+                        <ChevronDown className={`w-4 h-4 transition-transform ${isExpanded ? "rotate-180" : ""}`} />
+                      </button>
+                    </div>
 
-                    {label}
+                    {isExpanded && (
+                      <div className="ml-6 pl-3 border-l border-slate-800 py-1 space-y-0.5">
+                        {sections.map((subLabel) => {
+                          const subPath = `${to === "/" ? "/dashboard" : to}/${slugifySection(subLabel)}`;
 
-                  </NavLink>
-
-                )
-              )}
+                          return (
+                            <NavLink
+                              key={subPath}
+                              to={subPath}
+                              onClick={() => setMobileOpen(false)}
+                              className={({ isActive }) =>
+                                `block px-3 py-1.5 rounded-md text-xs transition-colors ${
+                                  isActive
+                                    ? "bg-indigo-500/10 text-indigo-300"
+                                    : "text-slate-500 hover:text-slate-300 hover:bg-slate-800/50"
+                                }`
+                              }
+                            >
+                              {subLabel}
+                            </NavLink>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
 
             </div>
 
@@ -290,6 +276,8 @@ export default function Layout() {
           </div>
 
           <div className="flex items-center gap-3">
+
+            <CompanySwitcher />
 
             <button className="relative p-2 rounded-lg hover:bg-slate-100">
 
