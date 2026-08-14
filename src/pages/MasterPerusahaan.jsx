@@ -7,6 +7,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/ui/use-toast";
+import { withGeneratedCode } from "@/lib/codeGenerator";
 import { useCompany } from "@/lib/CompanyContext";
 
 const emptyForm = {
@@ -64,7 +65,7 @@ export default function MasterPerusahaan() {
         toast({ title: "Profil perusahaan diperbarui" });
       } else {
         if (!isSuperAdmin) throw new Error("Hanya Super Admin yang dapat menambah perusahaan");
-        await base44.entities.Perusahaan.create(form);
+        await base44.entities.Perusahaan.create(withGeneratedCode("perusahaan", "kode", { kode: form.nama }, form));
         toast({ title: "Perusahaan ditambahkan" });
       }
       setOpen(false);
