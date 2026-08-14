@@ -10,7 +10,7 @@ export const moduleStructure = [
   {
     group: "Manajemen",
     modules: [
-      { label: "Master Data", path: "/master-data", sections: ["Perusahaan", "Profil Perusahaan", "Cabang", "Departemen", "Jabatan", "Shift", "Kalender Kerja", "Kategori Tunjangan", "Jenis Pinjaman", "Jenis Izin"] },
+      { label: "Master Data", path: "/master-data", sections: ["Perusahaan", "Profil Perusahaan", "Cabang", "Departemen", "Jabatan", "Shift", "Titik Absensi", "Kalender Kerja", "Kategori Tunjangan", "Jenis Pinjaman", "Jenis Izin"] },
       { label: "Data Karyawan", path: "/karyawan", sections: ["Daftar Karyawan", "Biodata", "Penempatan", "Dokumen", "Akun Login", "Riwayat", "Status"] },
       { label: "Payroll", path: "/payrolls", sections: ["Komponen Gaji", "Generate Payroll", "Preview Payroll", "Approval Payroll", "Slip Gaji", "Riwayat Payroll"] },
       { label: "Pinjaman Karyawan", path: "/pinjaman", sections: ["Pengajuan", "Approval", "Cicilan", "Pelunasan", "Riwayat"] },
