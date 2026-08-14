@@ -133,7 +133,7 @@ export default function Layout() {
                         {label}
                       </NavLink>
 
-                      <button
+                      {sections.length > 0 && <button
                         type="button"
                         aria-label={`${isExpanded ? "Tutup" : "Buka"} submenu ${label}`}
                         aria-expanded={isExpanded}
@@ -141,10 +141,10 @@ export default function Layout() {
                         className="p-2 rounded-lg text-slate-500 hover:text-slate-200 hover:bg-slate-800/60"
                       >
                         <ChevronDown className={`w-4 h-4 transition-transform ${isExpanded ? "rotate-180" : ""}`} />
-                      </button>
+                      </button>}
                     </div>
 
-                    {isExpanded && (
+                    {sections.length > 0 && isExpanded && (
                       <div className="ml-6 pl-3 border-l border-slate-800 py-1 space-y-0.5">
                         {sections.map((subLabel) => {
                           const subPath = `${to === "/" ? "/dashboard" : to}/${slugifySection(subLabel)}`;
