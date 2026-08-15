@@ -2,29 +2,37 @@ export const moduleStructure = [
   {
     group: "Utama",
     modules: [
-      { label: "Dashboard", path: "/", sections: [] },
-      { label: "Absensi", path: "/absensi", sections: [] },
-      { label: "Kunjungan", path: "/kunjungan", sections: [] },
+      { key: "dashboard", label: "Dashboard", path: "/", sections: [] },
+      { key: "absensi", label: "Absensi", path: "/absensi", sections: [] },
+      { key: "kunjungan", label: "Kunjungan", path: "/kunjungan", sections: [] },
     ],
   },
   {
     group: "Manajemen",
     modules: [
-      { label: "Master Data", path: "/master-data", sections: ["Perusahaan", "Titik Absensi"] },
-      { label: "Data Karyawan", path: "/karyawan", sections: [] },
-      { label: "Payroll", path: "/payrolls", sections: [] },
-      { label: "Pinjaman Karyawan", path: "/pinjaman", sections: [] },
-      { label: "Izin & Cuti", path: "/izin-cuti", sections: [] },
-      { label: "Lembur", path: "/lembur", sections: [] },
-      { label: "Pengumuman", path: "/pengumuman", sections: [] },
+      {
+        key: "master_data",
+        label: "Master Data",
+        path: "/master-data",
+        sections: [
+          { key: "master_perusahaan", label: "Perusahaan", path: "/master-data/perusahaan" },
+          { key: "titik_absensi", label: "Titik Absensi", path: "/master-data/titik-absensi" },
+        ],
+      },
+      { key: "data_karyawan", label: "Data Karyawan", path: "/karyawan", sections: [] },
+      { key: "payroll", label: "Payroll", path: "/payrolls", sections: [] },
+      { key: "pinjaman", label: "Pinjaman Karyawan", path: "/pinjaman", sections: [] },
+      { key: "izin_cuti", label: "Izin & Cuti", path: "/izin-cuti", sections: [] },
+      { key: "lembur", label: "Lembur", path: "/lembur", sections: [] },
+      { key: "pengumuman", label: "Pengumuman", path: "/pengumuman", sections: [] },
     ],
   },
   {
     group: "Sistem",
     modules: [
-      { label: "Laporan", path: "/laporan", sections: [] },
-      { label: "Pengaturan", path: "/pengaturan", sections: [] },
-      { label: "Administrator", path: "/administrator", sections: [] },
+      { key: "laporan", label: "Laporan", path: "/laporan", sections: [] },
+      { key: "pengaturan", label: "Pengaturan", path: "/pengaturan", sections: [] },
+      { key: "administrator", label: "Administrator", path: "/administrator", sections: [] },
     ],
   },
 ];
