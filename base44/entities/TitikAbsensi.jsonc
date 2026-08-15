@@ -7,6 +7,7 @@
     "company_nama": { "type": "string" },
     "cabang_id": { "type": "string" },
     "cabang_nama": { "type": "string" },
+    "is_company_location": { "type": "boolean", "default": false },
     "nama": { "type": "string" },
     "alamat": { "type": "string" },
     "latitude": { "type": "number" },
@@ -14,5 +15,5 @@
     "radius_meter": { "type": "number", "default": 100 },
     "status": { "type": "string", "enum": ["aktif", "nonaktif"], "default": "aktif" }
   },
-  "required": ["kode", "company_id", "cabang_id", "nama", "latitude", "longitude", "radius_meter"]
+  "required": ["kode", "company_id", "nama", "latitude", "longitude", "radius_meter"]
 }
