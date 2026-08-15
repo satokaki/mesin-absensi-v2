@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Outlet, NavLink, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/lib/AuthContext";
-import { moduleStructure, slugifySection } from "@/lib/moduleStructure";
+import { moduleStructure } from "@/lib/moduleStructure";
 import CompanySwitcher from "@/components/CompanySwitcher";
 import {
   LayoutDashboard,
@@ -111,7 +111,7 @@ export default function Layout() {
 
             <div className="space-y-0.5">
 
-              {section.items.map(({ to, label, icon: Icon, end, sections }) => {
+              {section.items.map(({ to, label, icon: Icon, end, sections = [] }) => {
                 const isExpanded = !!expanded[to];
 
                 return (
@@ -133,39 +133,46 @@ export default function Layout() {
                         {label}
                       </NavLink>
 
-                      {sections.length > 0 && <button
-                        type="button"
-                        aria-label={`${isExpanded ? "Tutup" : "Buka"} submenu ${label}`}
-                        aria-expanded={isExpanded}
-                        onClick={() => setExpanded((current) => ({ ...current, [to]: !current[to] }))}
-                        className="p-2 rounded-lg text-slate-500 hover:text-slate-200 hover:bg-slate-800/60"
-                      >
-                        <ChevronDown className={`w-4 h-4 transition-transform ${isExpanded ? "rotate-180" : ""}`} />
-                      </button>}
+                      {sections.length > 0 && (
+                        <button
+                          type="button"
+                          aria-label={`${isExpanded ? "Tutup" : "Buka"} submenu ${label}`}
+                          aria-expanded={isExpanded}
+                          onClick={() =>
+                            setExpanded((current) => ({
+                              ...current,
+                              [to]: !current[to],
+                            }))
+                          }
+                          className="p-2 rounded-lg text-slate-500 hover:text-slate-200 hover:bg-slate-800/60"
+                        >
+                          <ChevronDown
+                            className={`w-4 h-4 transition-transform ${
+                              isExpanded ? "rotate-180" : ""
+                            }`}
+                          />
+                        </button>
+                      )}
                     </div>
 
                     {sections.length > 0 && isExpanded && (
                       <div className="ml-6 pl-3 border-l border-slate-800 py-1 space-y-0.5">
-                        {sections.map((subLabel) => {
-                          const subPath = `${to === "/" ? "/dashboard" : to}/${slugifySection(subLabel)}`;
-
-                          return (
-                            <NavLink
-                              key={subPath}
-                              to={subPath}
-                              onClick={() => setMobileOpen(false)}
-                              className={({ isActive }) =>
-                                `block px-3 py-1.5 rounded-md text-xs transition-colors ${
-                                  isActive
-                                    ? "bg-indigo-500/10 text-indigo-300"
-                                    : "text-slate-500 hover:text-slate-300 hover:bg-slate-800/50"
-                                }`
-                              }
-                            >
-                              {subLabel}
-                            </NavLink>
-                          );
-                        })}
+                        {sections.map((subItem) => (
+                          <NavLink
+                            key={subItem.key || subItem.path}
+                            to={subItem.path}
+                            onClick={() => setMobileOpen(false)}
+                            className={({ isActive }) =>
+                              `block px-3 py-1.5 rounded-md text-xs transition-colors ${
+                                isActive
+                                  ? "bg-indigo-500/10 text-indigo-300"
+                                  : "text-slate-500 hover:text-slate-300 hover:bg-slate-800/50"
+                              }`
+                            }
+                          >
+                            {subItem.label}
+                          </NavLink>
+                        ))}
                       </div>
                     )}
                   </div>
