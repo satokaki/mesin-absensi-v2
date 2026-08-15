@@ -13,6 +13,7 @@ import { useCompany } from "@/lib/CompanyContext";
 const emptyForm = {
   kode: "", nama: "", nama_legal: "", alamat: "", kota: "", provinsi: "",
   telepon: "", email: "", npwp: "", mata_uang: "IDR", zona_waktu: "Asia/Jakarta", status: "aktif",
+  lokasi_absensi_nama: "", latitude: "", longitude: "", radius_meter: 100,
 };
 
 export default function MasterPerusahaan() {
@@ -55,6 +56,35 @@ export default function MasterPerusahaan() {
     setOpen(true);
   };
 
+  const syncCompanyLocation = async (company) => {
+    const existing = await base44.entities.TitikAbsensi.filter({
+      company_id: company.id,
+      is_company_location: true,
+    });
+    const locationPayload = {
+      company_id: company.id,
+      company_nama: company.nama,
+      cabang_id: "",
+      cabang_nama: "",
+      is_company_location: true,
+      nama: company.lokasi_absensi_nama || company.nama,
+      alamat: company.alamat || "",
+      latitude: Number(company.latitude),
+      longitude: Number(company.longitude),
+      radius_meter: Number(company.radius_meter || 100),
+      status: company.status || "aktif",
+    };
+
+    if (existing[0]) {
+      await base44.entities.TitikAbsensi.update(existing[0].id, locationPayload);
+      return;
+    }
+
+    await base44.entities.TitikAbsensi.create(
+      withGeneratedCode("titik_absensi", "kode", company, locationPayload)
+    );
+  };
+
   const handleSubmit = async (event) => {
     event.preventDefault();
     setBusy(true);
@@ -63,18 +93,27 @@ export default function MasterPerusahaan() {
         "perusahaan",
         "kode",
         { kode: form.nama },
-        form
+        {
+          ...form,
+          latitude: Number(form.latitude),
+          longitude: Number(form.longitude),
+          radius_meter: Number(form.radius_meter || 100),
+        }
       );
 
+      let savedCompany;
       if (editId) {
         if (!isSuperAdmin && editId !== activeCompany?.id) throw new Error("Akses ditolak");
-        await base44.entities.Perusahaan.update(editId, payload);
+        const updated = await base44.entities.Perusahaan.update(editId, payload);
+        savedCompany = { ...payload, ...updated, id: editId };
         toast({ title: "Profil perusahaan diperbarui" });
       } else {
         if (!isSuperAdmin) throw new Error("Hanya Super Admin yang dapat menambah perusahaan");
-        await base44.entities.Perusahaan.create(payload);
+        const created = await base44.entities.Perusahaan.create(payload);
+        savedCompany = { ...payload, ...created };
         toast({ title: "Perusahaan ditambahkan" });
       }
+      await syncCompanyLocation(savedCompany);
       setOpen(false);
       await reloadCompanies();
       await loadCompanies();
@@ -145,6 +184,26 @@ export default function MasterPerusahaan() {
                 <Input type={key === "email" ? "email" : "text"} required={key === "nama"} value={form[key] || ""} onChange={(event) => setForm({ ...form, [key]: event.target.value })} />
               </div>
             ))}
+            <div className="sm:col-span-2 border-t border-slate-200 pt-4 mt-1">
+              <h3 className="font-semibold text-slate-900">Titik Lokasi Absensi Utama</h3>
+              <p className="text-xs text-slate-500 mt-1">Digunakan sebagai lokasi GPS utama seluruh karyawan perusahaan.</p>
+            </div>
+            <div className="sm:col-span-2">
+              <Label>Nama Titik Lokasi</Label>
+              <Input required placeholder={form.nama || "Contoh: Kantor Utama"} value={form.lokasi_absensi_nama || ""} onChange={(event) => setForm({ ...form, lokasi_absensi_nama: event.target.value })} />
+            </div>
+            <div>
+              <Label>Latitude</Label>
+              <Input required type="number" step="any" placeholder="-8.1723" value={form.latitude ?? ""} onChange={(event) => setForm({ ...form, latitude: event.target.value })} />
+            </div>
+            <div>
+              <Label>Longitude</Label>
+              <Input required type="number" step="any" placeholder="113.7009" value={form.longitude ?? ""} onChange={(event) => setForm({ ...form, longitude: event.target.value })} />
+            </div>
+            <div>
+              <Label>Radius Absensi (meter)</Label>
+              <Input required type="number" min="1" value={form.radius_meter ?? 100} onChange={(event) => setForm({ ...form, radius_meter: event.target.value })} />
+            </div>
             <div><Label>Status</Label><select className="w-full h-10 rounded-md border border-input px-3" value={form.status} onChange={(event) => setForm({ ...form, status: event.target.value })}><option value="aktif">Aktif</option><option value="nonaktif">Nonaktif</option></select></div>
             <div className="sm:col-span-2"><Button type="submit" disabled={busy} className="w-full">{busy ? "Menyimpan..." : "Simpan Perusahaan"}</Button></div>
           </form>
