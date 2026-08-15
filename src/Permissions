@@ -1,0 +1,68 @@
+export const MENU_PERMISSION_OPTIONS = [
+  { key: "dashboard", label: "Dashboard", group: "Utama" },
+  { key: "absensi", label: "Absensi", group: "Utama" },
+  { key: "kunjungan", label: "Kunjungan", group: "Utama" },
+  { key: "master_data", label: "Master Data", group: "Manajemen" },
+  { key: "master_perusahaan", label: "Master Perusahaan", group: "Manajemen" },
+  { key: "titik_absensi", label: "Titik Absensi", group: "Manajemen" },
+  { key: "data_karyawan", label: "Data Karyawan", group: "Manajemen" },
+  { key: "payroll", label: "Payroll", group: "Manajemen" },
+  { key: "pinjaman", label: "Pinjaman Karyawan", group: "Manajemen" },
+  { key: "izin_cuti", label: "Izin & Cuti", group: "Manajemen" },
+  { key: "lembur", label: "Lembur", group: "Manajemen" },
+  { key: "pengumuman", label: "Pengumuman", group: "Manajemen" },
+  { key: "laporan", label: "Laporan", group: "Sistem" },
+  { key: "pengaturan", label: "Pengaturan", group: "Sistem" },
+  { key: "administrator", label: "Administrator & Hak Akses", group: "Sistem" },
+];
+
+export const ALL_MENU_PERMISSION_KEYS = MENU_PERMISSION_OPTIONS.map((item) => item.key);
+
+export const ROLE_LABELS = {
+  company_admin: "Admin Perusahaan",
+  hr: "HR",
+  payroll: "Payroll",
+  supervisor: "Supervisor",
+  karyawan: "Karyawan",
+};
+
+export const ROLE_DEFAULT_PERMISSIONS = {
+  company_admin: ALL_MENU_PERMISSION_KEYS,
+  hr: [
+    "dashboard", "absensi", "kunjungan", "master_data", "master_perusahaan",
+    "titik_absensi", "data_karyawan", "izin_cuti", "lembur", "pengumuman", "laporan",
+  ],
+  payroll: ["dashboard", "data_karyawan", "payroll", "pinjaman", "laporan"],
+  supervisor: [
+    "dashboard", "absensi", "kunjungan", "data_karyawan", "izin_cuti",
+    "lembur", "pengumuman", "laporan",
+  ],
+  karyawan: ["dashboard", "absensi", "kunjungan", "izin_cuti", "lembur", "pengumuman"],
+};
+
+export function getRoleDefaultPermissions(role = "karyawan") {
+  return [...(ROLE_DEFAULT_PERMISSIONS[role] || ROLE_DEFAULT_PERMISSIONS.karyawan)];
+}
+
+export function normalizeMenuPermissions(permissions = []) {
+  const valid = new Set(
+    permissions.filter((permission) => ALL_MENU_PERMISSION_KEYS.includes(permission))
+  );
+
+  if (valid.has("master_perusahaan") || valid.has("titik_absensi")) {
+    valid.add("master_data");
+  }
+
+  return ALL_MENU_PERMISSION_KEYS.filter((permission) => valid.has(permission));
+}
+
+export function resolveMenuPermissions(membership, isSuperAdmin = false) {
+  if (isSuperAdmin) return [...ALL_MENU_PERMISSION_KEYS];
+  if (!membership || membership.status !== "aktif") return [];
+
+  if (Array.isArray(membership.menu_permissions)) {
+    return normalizeMenuPermissions(membership.menu_permissions);
+  }
+
+  return getRoleDefaultPermissions(membership.role);
+}
