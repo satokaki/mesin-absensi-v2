@@ -59,13 +59,20 @@ export default function MasterPerusahaan() {
     event.preventDefault();
     setBusy(true);
     try {
+      const payload = withGeneratedCode(
+        "perusahaan",
+        "kode",
+        { kode: form.nama },
+        form
+      );
+
       if (editId) {
         if (!isSuperAdmin && editId !== activeCompany?.id) throw new Error("Akses ditolak");
-        await base44.entities.Perusahaan.update(editId, form);
+        await base44.entities.Perusahaan.update(editId, payload);
         toast({ title: "Profil perusahaan diperbarui" });
       } else {
         if (!isSuperAdmin) throw new Error("Hanya Super Admin yang dapat menambah perusahaan");
-        await base44.entities.Perusahaan.create(withGeneratedCode("perusahaan", "kode", { kode: form.nama }, form));
+        await base44.entities.Perusahaan.create(payload);
         toast({ title: "Perusahaan ditambahkan" });
       }
       setOpen(false);
@@ -79,7 +86,7 @@ export default function MasterPerusahaan() {
   };
 
   const fields = [
-    ["kode", "Kode"], ["nama", "Nama Perusahaan"], ["nama_legal", "Nama Legal"],
+    ["nama", "Nama Perusahaan"], ["nama_legal", "Nama Legal"],
     ["alamat", "Alamat"], ["kota", "Kota"], ["provinsi", "Provinsi"],
     ["telepon", "Telepon"], ["email", "Email"], ["npwp", "NPWP"],
   ];
@@ -124,10 +131,18 @@ export default function MasterPerusahaan() {
         <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
           <DialogHeader><DialogTitle>{editId ? "Edit" : "Tambah"} Perusahaan</DialogTitle></DialogHeader>
           <form onSubmit={handleSubmit} className="grid sm:grid-cols-2 gap-4">
+            <div>
+              <Label>Kode</Label>
+              <Input
+                value={editId ? form.kode || "Akan dibuat otomatis" : "Otomatis saat disimpan"}
+                readOnly
+                className="bg-slate-50 text-slate-500 cursor-not-allowed"
+              />
+            </div>
             {fields.map(([key, label]) => (
               <div key={key} className={key === "alamat" ? "sm:col-span-2" : ""}>
                 <Label>{label}</Label>
-                <Input type={key === "email" ? "email" : "text"} required={key === "kode" || key === "nama"} value={form[key] || ""} onChange={(event) => setForm({ ...form, [key]: event.target.value })} />
+                <Input type={key === "email" ? "email" : "text"} required={key === "nama"} value={form[key] || ""} onChange={(event) => setForm({ ...form, [key]: event.target.value })} />
               </div>
             ))}
             <div><Label>Status</Label><select className="w-full h-10 rounded-md border border-input px-3" value={form.status} onChange={(event) => setForm({ ...form, status: event.target.value })}><option value="aktif">Aktif</option><option value="nonaktif">Nonaktif</option></select></div>
