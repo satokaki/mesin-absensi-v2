@@ -2,6 +2,7 @@ import React, { createContext, useCallback, useContext, useEffect, useMemo, useS
 import { base44 } from "@/api/base44Client";
 import { useAuth } from "@/lib/AuthContext";
 import { queryClientInstance } from "@/lib/query-client";
+import { resolveMenuPermissions } from "@/lib/permissions";
 
 const CompanyContext = createContext(null);
 const ACTIVE_COMPANY_KEY = "mesin_absensi_active_company";
@@ -89,6 +90,14 @@ export function CompanyProvider({ children }) {
   );
 
   const activeMembership = memberships.find((item) => item.company_id === activeCompany?.id) || null;
+  const menuPermissions = useMemo(
+    () => resolveMenuPermissions(activeMembership, isSuperAdmin),
+    [activeMembership, isSuperAdmin]
+  );
+  const canAccessMenu = useCallback(
+    (permission) => isSuperAdmin || menuPermissions.includes(permission),
+    [isSuperAdmin, menuPermissions]
+  );
 
   const value = useMemo(
     () => ({
@@ -98,11 +107,13 @@ export function CompanyProvider({ children }) {
       memberships,
       isLoadingCompanies,
       isSuperAdmin,
+      menuPermissions,
+      canAccessMenu,
       switchCompany,
       canAccessCompany,
       reloadCompanies: loadCompanies,
     }),
-    [activeCompany, activeMembership, availableCompanies, memberships, isLoadingCompanies, isSuperAdmin, switchCompany, canAccessCompany, loadCompanies]
+    [activeCompany, activeMembership, availableCompanies, memberships, isLoadingCompanies, isSuperAdmin, menuPermissions, canAccessMenu, switchCompany, canAccessCompany, loadCompanies]
   );
 
   return <CompanyContext.Provider value={value}>{children}</CompanyContext.Provider>;
