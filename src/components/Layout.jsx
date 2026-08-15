@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { Outlet, NavLink, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/lib/AuthContext";
-import { moduleStructure, slugifySection } from "@/lib/moduleStructure";
+import { useCompany } from "@/lib/CompanyContext";
+import { moduleStructure } from "@/lib/moduleStructure";
 import CompanySwitcher from "@/components/CompanySwitcher";
 import {
   LayoutDashboard,
@@ -39,24 +40,35 @@ const moduleIcons = {
   Administrator: Shield,
 };
 
-const navSections = moduleStructure.map(({ group, modules }) => ({
-  label: group,
-  items: modules.map((item) => ({
-    ...item,
-    to: item.path,
-    icon: moduleIcons[item.label],
-    end: item.path === "/",
-  })),
-}));
-
 export default function Layout() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const location = useLocation();
   const [expanded, setExpanded] = useState({});
 
   const { user, logout } = useAuth();
+  const { canAccessMenu } = useCompany();
 
   const navigate = useNavigate();
+  const navSections = moduleStructure
+    .map(({ group, modules }) => ({
+      label: group,
+      items: modules
+        .map((item) => {
+          const sections = item.sections.filter((section) => canAccessMenu(section.key));
+          const allowed = canAccessMenu(item.key) || sections.length > 0;
+          if (!allowed) return null;
+
+          return {
+            ...item,
+            sections,
+            to: item.path,
+            icon: moduleIcons[item.label],
+            end: item.path === "/",
+          };
+        })
+        .filter(Boolean),
+    }))
+    .filter((section) => section.items.length > 0);
 
   useEffect(() => {
     const active = navSections
@@ -146,13 +158,11 @@ export default function Layout() {
 
                     {sections.length > 0 && isExpanded && (
                       <div className="ml-6 pl-3 border-l border-slate-800 py-1 space-y-0.5">
-                        {sections.map((subLabel) => {
-                          const subPath = `${to === "/" ? "/dashboard" : to}/${slugifySection(subLabel)}`;
-
+                        {sections.map((section) => {
                           return (
                             <NavLink
-                              key={subPath}
-                              to={subPath}
+                              key={section.path}
+                              to={section.path}
                               onClick={() => setMobileOpen(false)}
                               className={({ isActive }) =>
                                 `block px-3 py-1.5 rounded-md text-xs transition-colors ${
@@ -162,7 +172,7 @@ export default function Layout() {
                                 }`
                               }
                             >
-                              {subLabel}
+                              {section.label}
                             </NavLink>
                           );
                         })}
