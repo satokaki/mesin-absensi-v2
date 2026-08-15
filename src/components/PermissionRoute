@@ -1,0 +1,37 @@
+import React from "react";
+import { useNavigate } from "react-router-dom";
+import { ShieldX } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { useCompany } from "@/lib/CompanyContext";
+
+export default function PermissionRoute({ permission, children }) {
+  const navigate = useNavigate();
+  const { activeCompany, isLoadingCompanies, isSuperAdmin, canAccessMenu } = useCompany();
+
+  if (isLoadingCompanies) {
+    return (
+      <div className="min-h-[60vh] flex items-center justify-center">
+        <div className="w-8 h-8 border-4 border-slate-200 border-t-indigo-600 rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  if (canAccessMenu(permission)) return children;
+
+  return (
+    <div className="min-h-[70vh] flex items-center justify-center p-6">
+      <div className="max-w-md w-full bg-white border border-slate-200 rounded-2xl p-8 text-center">
+        <div className="w-14 h-14 rounded-2xl bg-rose-50 flex items-center justify-center mx-auto">
+          <ShieldX className="w-7 h-7 text-rose-600" />
+        </div>
+        <h2 className="text-xl font-bold text-slate-900 mt-5">Akses ditolak</h2>
+        <p className="text-sm text-slate-500 mt-2">
+          {!activeCompany && !isSuperAdmin
+            ? "Akun Anda belum memiliki akses ke perusahaan aktif."
+            : "Anda tidak memiliki hak akses untuk membuka menu ini."}
+        </p>
+        <Button className="mt-6" onClick={() => navigate("/")}>Kembali ke Dashboard</Button>
+      </div>
+    </div>
+  );
+}
