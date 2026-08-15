@@ -1,4 +1,3 @@
-import { useEffect } from 'react';
 import { Outlet } from 'react-router-dom';
 import { useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
@@ -9,27 +8,32 @@ const DefaultFallback = () => (
   </div>
 );
 
-export default function ProtectedRoute({ fallback = <DefaultFallback />, unauthenticatedElement }) {
-  const { isAuthenticated, isLoadingAuth, authChecked, authError, checkUserAuth } = useAuth();
+export default function ProtectedRoute({
+  fallback = <DefaultFallback />,
+  unauthenticatedElement,
+}) {
+  const {
+    isAuthenticated,
+    isLoadingAuth,
+    isLoadingPublicSettings,
+    authChecked,
+    authError,
+  } = useAuth();
 
-  useEffect(() => {
-    if (!authChecked && !isLoadingAuth) {
-      checkUserAuth();
-    }
-  }, [authChecked, isLoadingAuth, checkUserAuth]);
-
-  if (isLoadingAuth || !authChecked) {
+  /*
+   * AuthContext adalah satu-satunya sumber status autentikasi.
+   * ProtectedRoute hanya membaca status dan tidak menjalankan
+   * pengecekan auth tambahan.
+   */
+  if (isLoadingPublicSettings || isLoadingAuth || !authChecked) {
     return fallback;
   }
 
-  if (authError) {
-    if (authError.type === 'user_not_registered') {
-      return <UserNotRegisteredError />;
-    }
-    return unauthenticatedElement;
+  if (authError?.type === 'user_not_registered') {
+    return <UserNotRegisteredError />;
   }
 
-  if (!isAuthenticated) {
+  if (authError || !isAuthenticated) {
     return unauthenticatedElement;
   }
 
