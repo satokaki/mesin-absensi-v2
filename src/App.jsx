@@ -8,6 +8,7 @@ import { CompanyProvider } from '@/lib/CompanyContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import ScrollToTop from './components/ScrollToTop';
 import ProtectedRoute from '@/components/ProtectedRoute';
+import PermissionRoute from '@/components/PermissionRoute';
 import Layout from '@/components/Layout';
 import Login from '@/pages/Login';
 import Register from '@/pages/Register';
@@ -62,21 +63,21 @@ const AuthenticatedApp = () => {
       <Route path="/reset-password" element={<ResetPassword />} />
       <Route element={<ProtectedRoute unauthenticatedElement={<Navigate to="/login" replace />} />}>
         <Route element={<Layout />}>
-          <Route path="/" element={<Dashboard />} />
-          <Route path="/absensi" element={<Absensi />} />
-          <Route path="/kunjungan" element={<Kunjungan />} />
-          <Route path="/master-data" element={<MasterData />} />
-          <Route path="/karyawan" element={<DataKaryawan />} />
-          <Route path="/izin-cuti" element={<IzinCuti />} />
-          <Route path="/lembur" element={<Lembur />} />
-          <Route path="/pinjaman" element={<Pinjaman />} />
-          <Route path="/payrolls" element={<Payrolls />} />
-          <Route path="/pengumuman" element={<Pengumuman />} />
-          <Route path="/laporan" element={<Laporan />} />
-          <Route path="/pengaturan" element={<Pengaturan />} />
-          <Route path="/administrator" element={<Administrator />} />
-          <Route path="/master-data/perusahaan" element={<MasterPerusahaan />} />
-          <Route path="/master-data/titik-absensi" element={<TitikAbsensi />} />
+          <Route path="/" element={<PermissionRoute permission="dashboard"><Dashboard /></PermissionRoute>} />
+          <Route path="/absensi" element={<PermissionRoute permission="absensi"><Absensi /></PermissionRoute>} />
+          <Route path="/kunjungan" element={<PermissionRoute permission="kunjungan"><Kunjungan /></PermissionRoute>} />
+          <Route path="/master-data" element={<PermissionRoute permission="master_data"><MasterData /></PermissionRoute>} />
+          <Route path="/karyawan" element={<PermissionRoute permission="data_karyawan"><DataKaryawan /></PermissionRoute>} />
+          <Route path="/izin-cuti" element={<PermissionRoute permission="izin_cuti"><IzinCuti /></PermissionRoute>} />
+          <Route path="/lembur" element={<PermissionRoute permission="lembur"><Lembur /></PermissionRoute>} />
+          <Route path="/pinjaman" element={<PermissionRoute permission="pinjaman"><Pinjaman /></PermissionRoute>} />
+          <Route path="/payrolls" element={<PermissionRoute permission="payroll"><Payrolls /></PermissionRoute>} />
+          <Route path="/pengumuman" element={<PermissionRoute permission="pengumuman"><Pengumuman /></PermissionRoute>} />
+          <Route path="/laporan" element={<PermissionRoute permission="laporan"><Laporan /></PermissionRoute>} />
+          <Route path="/pengaturan" element={<PermissionRoute permission="pengaturan"><Pengaturan /></PermissionRoute>} />
+          <Route path="/administrator" element={<PermissionRoute permission="administrator"><Administrator /></PermissionRoute>} />
+          <Route path="/master-data/perusahaan" element={<PermissionRoute permission="master_perusahaan"><MasterPerusahaan /></PermissionRoute>} />
+          <Route path="/master-data/titik-absensi" element={<PermissionRoute permission="titik_absensi"><TitikAbsensi /></PermissionRoute>} />
         </Route>
       </Route>
       <Route path="*" element={<PageNotFound />} />
