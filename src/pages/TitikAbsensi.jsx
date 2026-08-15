@@ -38,10 +38,15 @@ export default function TitikAbsensi() {
     event.preventDefault(); setBusy(true);
     try {
       const branch = branches.find((item) => item.id === form.cabang_id);
-      const raw = companyPayload(activeCompany, { ...form, cabang_nama: branch?.nama || "", latitude: Number(form.latitude), longitude: Number(form.longitude), radius_meter: Number(form.radius_meter) });
+      const isCompanyLocation = !form.cabang_id;
+      const raw = companyPayload(activeCompany, { ...form, cabang_id: branch?.id || "", cabang_nama: branch?.nama || "", is_company_location: isCompanyLocation, latitude: Number(form.latitude), longitude: Number(form.longitude), radius_meter: Number(form.radius_meter) });
       if (editId) {
         assertCompanyOwnership(activeCompany, form);
         await base44.entities.TitikAbsensi.update(editId, raw);
+      } else if (isCompanyLocation) {
+        const existing = items.find((item) => item.is_company_location);
+        if (existing) await base44.entities.TitikAbsensi.update(existing.id, raw);
+        else await base44.entities.TitikAbsensi.create(withGeneratedCode("titik_absensi", "kode", activeCompany, raw));
       } else {
         await base44.entities.TitikAbsensi.create(withGeneratedCode("titik_absensi", "kode", activeCompany, raw));
       }
@@ -72,9 +77,10 @@ export default function TitikAbsensi() {
     </div>
     <Dialog open={open} onOpenChange={setOpen}><DialogContent><DialogHeader><DialogTitle>{editId ? "Edit" : "Tambah"} Titik Absensi</DialogTitle></DialogHeader>
       <form onSubmit={save} className="space-y-3">
-        <div><Label>Kode</Label><Input placeholder="Otomatis jika kosong" value={form.kode || ""} onChange={(e) => setForm({ ...form, kode: e.target.value })} /></div>
+        <div><Label>Perusahaan</Label><Input readOnly className="bg-slate-50" value={activeCompany?.nama || "Belum ada perusahaan aktif"} /></div>
+        <div><Label>Kode</Label><Input readOnly className="bg-slate-50" value={editId ? form.kode || "Akan dibuat otomatis" : "Otomatis saat disimpan"} /></div>
         <div><Label>Nama</Label><Input required value={form.nama || ""} onChange={(e) => setForm({ ...form, nama: e.target.value })} /></div>
-        <div><Label>Cabang</Label><Select required value={form.cabang_id || ""} onValueChange={(value) => setForm({ ...form, cabang_id: value })}><SelectTrigger><SelectValue placeholder="Pilih cabang" /></SelectTrigger><SelectContent>{branches.map((branch) => <SelectItem key={branch.id} value={branch.id}>{branch.nama}</SelectItem>)}</SelectContent></Select></div>
+        <div><Label>Cabang (Opsional)</Label><Select value={form.cabang_id || "__company__"} onValueChange={(value) => setForm({ ...form, cabang_id: value === "__company__" ? "" : value })}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="__company__">Lokasi Utama Perusahaan</SelectItem>{branches.map((branch) => <SelectItem key={branch.id} value={branch.id}>{branch.nama}</SelectItem>)}</SelectContent></Select></div>
         <div><Label>Alamat</Label><Input value={form.alamat || ""} onChange={(e) => setForm({ ...form, alamat: e.target.value })} /></div>
         <div className="grid grid-cols-2 gap-3"><div><Label>Latitude</Label><Input required type="number" step="any" value={form.latitude ?? ""} onChange={(e) => setForm({ ...form, latitude: e.target.value })} /></div><div><Label>Longitude</Label><Input required type="number" step="any" value={form.longitude ?? ""} onChange={(e) => setForm({ ...form, longitude: e.target.value })} /></div></div>
         <div className="grid grid-cols-2 gap-3"><div><Label>Radius (meter)</Label><Input required min="1" type="number" value={form.radius_meter ?? 100} onChange={(e) => setForm({ ...form, radius_meter: e.target.value })} /></div><div><Label>Status</Label><Select value={form.status || "aktif"} onValueChange={(value) => setForm({ ...form, status: value })}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="aktif">Aktif</SelectItem><SelectItem value="nonaktif">Nonaktif</SelectItem></SelectContent></Select></div></div>
