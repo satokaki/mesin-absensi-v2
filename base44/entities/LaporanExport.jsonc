@@ -1,0 +1,9 @@
+{
+  "name": "LaporanExport", "type": "object",
+  "properties": {
+    "kode_laporan": { "type": "string" }, "company_id": { "type": "string" }, "company_nama": { "type": "string" },
+    "jenis": { "type": "string" }, "periode_mulai": { "type": "string", "format": "date" },
+    "periode_selesai": { "type": "string", "format": "date" }, "dibuat_oleh": { "type": "string" }, "file_url": { "type": "string" }
+  },
+  "required": ["kode_laporan", "company_id", "jenis"]
+}

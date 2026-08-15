@@ -16,6 +16,9 @@ import {
   RefreshCw,
 } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
+import { useCompany } from "@/lib/CompanyContext";
+import { assertCompanyOwnership, companyFilter, companyPayload } from "@/lib/tenant";
+import { withGeneratedCode } from "@/lib/codeGenerator";
 
 /**
  * ============================================================
@@ -168,6 +171,8 @@ function getCurrentPosition() {
 export default function Absensi() {
   const { user } = useAuth();
   const { toast } = useToast();
+  const { activeCompany } = useCompany();
+  const [karyawan, setKaryawan] = useState(null);
 
   const [today, setToday] = useState(null);
   const [riwayat, setRiwayat] = useState([]);
@@ -213,26 +218,22 @@ export default function Absensi() {
    */
 
   const loadData = async () => {
-    if (!user?.id) return;
+    if (!user?.id || !activeCompany?.id) return;
 
     try {
+      let employees = await base44.entities.Karyawan.filter(companyFilter(activeCompany, { user_id: user.id }));
+      if (!employees.length && user.email) employees = await base44.entities.Karyawan.filter(companyFilter(activeCompany, { email: user.email }));
+      const employee = employees[0] || null;
+      setKaryawan(employee);
+      if (!employee) { setToday(null); setRiwayat([]); setTitikAbsensi([]); return; }
+      const attendanceFilter = companyFilter(activeCompany, { karyawan_id: employee.id });
+      const locationFilter = companyFilter(activeCompany, { status: "aktif", ...(employee.cabang_id ? { cabang_id: employee.cabang_id } : {}) });
       const [todayList, history, points] = await Promise.all([
-        base44.entities.Absensi.filter({
+        base44.entities.Absensi.filter({ ...attendanceFilter,
           tanggal: getWibDateString(),
-          karyawan_id: user.id,
         }),
-
-        base44.entities.Absensi.filter(
-          {
-            karyawan_id: user.id,
-          },
-          "-tanggal",
-          30
-        ),
-
-        base44.entities.TitikAbsensi.filter({
-          status: "aktif",
-        }),
+        base44.entities.Absensi.filter(attendanceFilter, "-tanggal", 30),
+        base44.entities.TitikAbsensi.filter(locationFilter),
       ]);
 
       /**
@@ -240,12 +241,12 @@ export default function Absensi() {
        * Jangan fallback ke todayList[0] milik user lain.
        */
       const mine =
-        todayList.find((a) => a.karyawan_id === user.id) || null;
+        todayList.find((a) => a.karyawan_id === employee.id) || null;
 
       setToday(mine);
 
       setRiwayat(
-        (history || []).filter((item) => item.karyawan_id === user.id)
+        (history || []).filter((item) => item.karyawan_id === employee.id)
       );
 
       setTitikAbsensi(points || []);
@@ -266,7 +267,7 @@ export default function Absensi() {
     if (user?.id) {
       loadData();
     }
-  }, [user?.id]);
+  }, [user?.id, activeCompany?.id]);
 
   /**
    * ============================================================
@@ -460,9 +461,9 @@ export default function Absensi() {
   const handleCheckIn = async () => {
     if (busy) return;
 
-    if (!user?.id) {
+    if (!karyawan?.id) {
       toast({
-        title: "User tidak ditemukan",
+        title: "Akun belum terhubung ke karyawan pada perusahaan aktif",
         variant: "destructive",
       });
       return;
@@ -486,13 +487,13 @@ export default function Absensi() {
        * STEP 1
        * Cek ulang database untuk mencegah double check-in.
        */
-      const existing = await base44.entities.Absensi.filter({
+      const existing = await base44.entities.Absensi.filter(companyFilter(activeCompany, {
         tanggal: getWibDateString(),
-        karyawan_id: user.id,
-      });
+        karyawan_id: karyawan.id,
+      }));
 
       const existingRecord = existing?.find(
-        (item) => item.karyawan_id === user.id
+        (item) => item.karyawan_id === karyawan.id
       );
 
       if (existingRecord?.check_in) {
@@ -530,13 +531,16 @@ export default function Absensi() {
        * STEP 4
        * Create attendance.
        */
-      const record = await base44.entities.Absensi.create({
-        karyawan_id: user.id,
+      const attendancePayload = companyPayload(activeCompany, {
+        karyawan_id: karyawan.id,
 
         karyawan_nama:
-          user?.full_name ||
-          user?.email ||
-          "Unknown",
+          karyawan.nama_lengkap,
+        nik: karyawan.nik,
+        cabang_id: karyawan.cabang_id,
+        cabang_nama: karyawan.cabang_nama,
+        shift_id: karyawan.shift_id,
+        shift_nama: karyawan.shift_nama,
 
         tanggal: getWibDateString(),
 
@@ -562,6 +566,9 @@ export default function Absensi() {
 
         catatan: "Check in via Mesin Absensi GPS + Selfie",
       });
+      const record = await base44.entities.Absensi.create(
+        withGeneratedCode("absensi", "kode_absensi", activeCompany, attendancePayload)
+      );
 
       setToday(record);
 
@@ -614,6 +621,7 @@ export default function Absensi() {
     setBusy(true);
 
     try {
+      assertCompanyOwnership(activeCompany, today);
       /**
        * GPS fresh juga wajib saat checkout.
        */
@@ -638,6 +646,7 @@ export default function Absensi() {
         today.check_in,
         checkoutTime
       );
+      const durasiMenit = Math.max(0, Math.floor((new Date(checkoutTime) - new Date(today.check_in)) / 60000));
 
       const updated =
         await base44.entities.Absensi.update(
@@ -659,6 +668,7 @@ export default function Absensi() {
             jarak_check_out: Math.round(
               currentGps.distance
             ),
+            durasi_kerja: durasiMenit,
           }
         );
 

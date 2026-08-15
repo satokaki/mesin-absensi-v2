@@ -1,0 +1,10 @@
+{
+  "name": "Payroll", "type": "object",
+  "properties": {
+    "kode_payroll": { "type": "string" }, "company_id": { "type": "string" }, "company_nama": { "type": "string" },
+    "karyawan_id": { "type": "string" }, "karyawan_nama": { "type": "string" }, "periode": { "type": "string" },
+    "total_bruto": { "type": "number", "default": 0 }, "total_potongan": { "type": "number", "default": 0 },
+    "total_netto": { "type": "number", "default": 0 }, "status": { "type": "string", "enum": ["draft", "menunggu_approval", "disetujui", "dibayar"], "default": "draft" }
+  },
+  "required": ["kode_payroll", "company_id", "karyawan_id", "periode"]
+}

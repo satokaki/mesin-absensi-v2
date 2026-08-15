@@ -37,10 +37,12 @@ const toastVariants = cva(
   }
 );
 
-const Toast = React.forwardRef(({ className, variant, ...props }, ref) => {
+const Toast = React.forwardRef(({ className, variant, open, onOpenChange: _onOpenChange, ...props }, ref) => {
   return (
     <div
       ref={ref}
+      role="status"
+      data-state={open === false ? "closed" : "open"}
       className={cn(toastVariants({ variant }), className)}
       {...props}
     />

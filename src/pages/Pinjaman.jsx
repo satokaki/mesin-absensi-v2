@@ -6,14 +6,17 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Plus, Landmark, Check, X } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
+import { useCompany } from "@/lib/CompanyContext";
+import { companyFilter, companyPayload } from "@/lib/tenant";
+import { withGeneratedCode } from "@/lib/codeGenerator";
 
 export default function Pinjaman() {
   const { user } = useAuth();
   const { toast } = useToast();
+  const { activeCompany } = useCompany();
   const [list, setList] = useState([]);
   const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState(false);
@@ -21,11 +24,11 @@ export default function Pinjaman() {
   const [form, setForm] = useState({ jenis_pinjaman: "Pinjaman Karyawan", jumlah_pinjaman: 5000000, tenor_bulan: 12, bunga_persen: 0, alasan: "" });
 
   const loadData = async () => {
-    try { setList(await base44.entities.Pinjaman.list("-created_date", 50)); }
+    try { setList(activeCompany?.id ? await base44.entities.Pinjaman.filter(companyFilter(activeCompany), "-created_date", 50) : []); }
     catch (e) { console.error(e); }
     finally { setLoading(false); }
   };
-  useEffect(() => { loadData(); }, []);
+  useEffect(() => { loadData(); }, [activeCompany?.id]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -36,12 +39,12 @@ export default function Pinjaman() {
     const totalBunga = pokok * (bunga / 100);
     const cicilan = Math.round((pokok + totalBunga) / tenor);
     try {
-      await base44.entities.Pinjaman.create({
+      await base44.entities.Pinjaman.create(withGeneratedCode("pinjaman", "kode_pinjaman", activeCompany, companyPayload(activeCompany, {
         karyawan_id: user?.id, karyawan_nama: user?.full_name || user?.email,
         ...form, jumlah_pinjaman: pokok, tenor_bulan: tenor, bunga_persen: bunga,
         cicilan_per_bulan: cicilan, sisa_pokok: pokok,
         tanggal_pengajuan: new Date().toISOString().split("T")[0], status: "pending",
-      });
+      })));
       toast({ title: "Pinjaman diajukan" });
       setOpen(false); setForm({ jenis_pinjaman: "Pinjaman Karyawan", jumlah_pinjaman: 5000000, tenor_bulan: 12, bunga_persen: 0, alasan: "" });
       loadData();

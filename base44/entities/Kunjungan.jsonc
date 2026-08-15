@@ -2,6 +2,9 @@
   "name": "Kunjungan",
   "type": "object",
   "properties": {
+    "kode_kunjungan": { "type": "string" },
+    "company_id": { "type": "string" },
+    "company_nama": { "type": "string" },
     "karyawan_id": {
       "type": "string"
     },

@@ -1,0 +1,21 @@
+{
+  "name": "UserCompany",
+  "type": "object",
+  "properties": {
+    "user_id": { "type": "string" },
+    "company_id": { "type": "string" },
+    "company_nama": { "type": "string" },
+    "role": {
+      "type": "string",
+      "enum": ["super_admin", "company_admin", "hr", "payroll", "supervisor", "karyawan"],
+      "default": "karyawan"
+    },
+    "status": {
+      "type": "string",
+      "enum": ["aktif", "nonaktif"],
+      "default": "aktif"
+    },
+    "is_default": { "type": "boolean", "default": false }
+  },
+  "required": ["user_id", "company_id", "role", "status"]
+}

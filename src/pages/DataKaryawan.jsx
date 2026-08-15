@@ -8,9 +8,13 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Plus, Search, Users, Phone, Mail } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
+import { useCompany } from "@/lib/CompanyContext";
+import { companyFilter, companyPayload } from "@/lib/tenant";
+import { withGeneratedCode } from "@/lib/codeGenerator";
 
 export default function DataKaryawan() {
   const { toast } = useToast();
+  const { activeCompany } = useCompany();
   const [list, setList] = useState([]);
   const [cabang, setCabang] = useState([]);
   const [departemen, setDepartemen] = useState([]);
@@ -23,20 +27,27 @@ export default function DataKaryawan() {
   const [busy, setBusy] = useState(false);
 
   const loadData = async () => {
+    if (!activeCompany?.id) {
+      setList([]); setCabang([]); setDepartemen([]); setJabatan([]); setShift([]);
+      setLoading(false);
+      return;
+    }
+
+    setLoading(true);
     try {
       const [k, c, d, j, s] = await Promise.all([
-        base44.entities.Karyawan.list("-created_date", 100),
-        base44.entities.Cabang.list(),
-        base44.entities.Departemen.list(),
-        base44.entities.Jabatan.list(),
-        base44.entities.Shift.list(),
+        base44.entities.Karyawan.filter(companyFilter(activeCompany), "-created_date", 100),
+        base44.entities.Cabang.filter(companyFilter(activeCompany)),
+        base44.entities.Departemen.filter(companyFilter(activeCompany)),
+        base44.entities.Jabatan.filter(companyFilter(activeCompany)),
+        base44.entities.Shift.filter(companyFilter(activeCompany)),
       ]);
       setList(k); setCabang(c); setDepartemen(d); setJabatan(j); setShift(s);
     } catch (e) { console.error(e); }
     finally { setLoading(false); }
   };
 
-  useEffect(() => { loadData(); }, []);
+  useEffect(() => { loadData(); }, [activeCompany?.id]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -46,7 +57,7 @@ export default function DataKaryawan() {
       const dep = departemen.find((d) => d.id === form.departemen_id);
       const jab = jabatan.find((j) => j.id === form.jabatan_id);
       const sh = shift.find((s) => s.id === form.shift_id);
-      await base44.entities.Karyawan.create({
+      const payload = companyPayload(activeCompany, {
         ...form,
         gaji_pokok: Number(form.gaji_pokok),
         cabang_nama: cab?.nama,
@@ -54,6 +65,9 @@ export default function DataKaryawan() {
         jabatan_nama: jab?.nama,
         shift_nama: sh?.nama,
       });
+      await base44.entities.Karyawan.create(
+        withGeneratedCode("karyawan", "nik", activeCompany, payload)
+      );
       toast({ title: "Karyawan ditambahkan" });
       setOpen(false);
       setForm({ nik: "", nama_lengkap: "", email: "", telepon: "", jenis_kelamin: "L", tanggal_masuk: new Date().toISOString().split("T")[0], gaji_pokok: 0, status: "aktif", cabang_id: "", departemen_id: "", jabatan_id: "", shift_id: "" });
@@ -78,7 +92,7 @@ export default function DataKaryawan() {
             <DialogHeader><DialogTitle>Tambah Karyawan</DialogTitle></DialogHeader>
             <form onSubmit={handleSubmit} className="space-y-3">
               <div className="grid grid-cols-2 gap-3">
-                <div><Label>NIK</Label><Input required value={form.nik} onChange={(e) => setForm({ ...form, nik: e.target.value })} /></div>
+                <div><Label>Kode Karyawan / NIK</Label><Input placeholder="Otomatis jika kosong" value={form.nik} onChange={(e) => setForm({ ...form, nik: e.target.value })} /></div>
                 <div><Label>Nama Lengkap</Label><Input required value={form.nama_lengkap} onChange={(e) => setForm({ ...form, nama_lengkap: e.target.value })} /></div>
               </div>
               <div className="grid grid-cols-2 gap-3">

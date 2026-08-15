@@ -4,6 +4,7 @@ import { queryClientInstance } from '@/lib/query-client'
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
+import { CompanyProvider } from '@/lib/CompanyContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import ScrollToTop from './components/ScrollToTop';
 import ProtectedRoute from '@/components/ProtectedRoute';
@@ -20,10 +21,13 @@ import DataKaryawan from '@/pages/DataKaryawan';
 import IzinCuti from '@/pages/IzinCuti';
 import Lembur from '@/pages/Lembur';
 import Pinjaman from '@/pages/Pinjaman';
+import Payrolls from '@/pages/Payrolls';
 import Pengumuman from '@/pages/Pengumuman';
 import Laporan from '@/pages/Laporan';
 import Pengaturan from '@/pages/Pengaturan';
 import Administrator from '@/pages/Administrator';
+import MasterPerusahaan from '@/pages/MasterPerusahaan';
+import TitikAbsensi from '@/pages/TitikAbsensi';
 import { Navigate } from 'react-router-dom';
 
 const AuthenticatedApp = () => {
@@ -66,10 +70,13 @@ const AuthenticatedApp = () => {
           <Route path="/izin-cuti" element={<IzinCuti />} />
           <Route path="/lembur" element={<Lembur />} />
           <Route path="/pinjaman" element={<Pinjaman />} />
+          <Route path="/payrolls" element={<Payrolls />} />
           <Route path="/pengumuman" element={<Pengumuman />} />
           <Route path="/laporan" element={<Laporan />} />
           <Route path="/pengaturan" element={<Pengaturan />} />
           <Route path="/administrator" element={<Administrator />} />
+          <Route path="/master-data/perusahaan" element={<MasterPerusahaan />} />
+          <Route path="/master-data/titik-absensi" element={<TitikAbsensi />} />
         </Route>
       </Route>
       <Route path="*" element={<PageNotFound />} />
@@ -82,13 +89,15 @@ function App() {
 
   return (
     <AuthProvider>
-      <QueryClientProvider client={queryClientInstance}>
-        <Router>
-          <ScrollToTop />
-          <AuthenticatedApp />
-        </Router>
-        <Toaster />
-      </QueryClientProvider>
+      <CompanyProvider>
+        <QueryClientProvider client={queryClientInstance}>
+          <Router>
+            <ScrollToTop />
+            <AuthenticatedApp />
+          </Router>
+          <Toaster />
+        </QueryClientProvider>
+      </CompanyProvider>
     </AuthProvider>
   )
 }

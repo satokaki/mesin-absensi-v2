@@ -9,6 +9,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { MapPin, Plus, LogOut, CheckCircle, Clock } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
+import { useCompany } from "@/lib/CompanyContext";
+import { companyFilter, companyPayload } from "@/lib/tenant";
+import { withGeneratedCode } from "@/lib/codeGenerator";
 
 function formatTime(iso) {
   if (!iso) return "--:--";
@@ -18,6 +21,7 @@ function formatTime(iso) {
 export default function Kunjungan() {
   const { user } = useAuth();
   const { toast } = useToast();
+  const { activeCompany } = useCompany();
   const [list, setList] = useState([]);
   const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState(false);
@@ -26,24 +30,24 @@ export default function Kunjungan() {
 
   const loadData = async () => {
     try {
-      const data = await base44.entities.Kunjungan.list("-tanggal", 50);
+      const data = activeCompany?.id ? await base44.entities.Kunjungan.filter(companyFilter(activeCompany), "-tanggal", 50) : [];
       setList(data);
     } catch (e) { console.error(e); }
     finally { setLoading(false); }
   };
 
-  useEffect(() => { loadData(); }, []);
+  useEffect(() => { loadData(); }, [activeCompany?.id]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setBusy(true);
     try {
-      await base44.entities.Kunjungan.create({
+      await base44.entities.Kunjungan.create(withGeneratedCode("kunjungan", "kode_kunjungan", activeCompany, companyPayload(activeCompany, {
         karyawan_id: user?.id,
         karyawan_nama: user?.full_name || user?.email,
         ...form,
         status: "direncanakan",
-      });
+      })));
       toast({ title: "Kunjungan dibuat" });
       setOpen(false);
       setForm({ tujuan: "", alamat_kunjungan: "", pic_nama: "", pic_kontak: "", tanggal: new Date().toISOString().split("T")[0], catatan: "" });
