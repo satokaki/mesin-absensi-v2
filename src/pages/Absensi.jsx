@@ -227,7 +227,7 @@ export default function Absensi() {
       setKaryawan(employee);
       if (!employee) { setToday(null); setRiwayat([]); setTitikAbsensi([]); return; }
       const attendanceFilter = companyFilter(activeCompany, { karyawan_id: employee.id });
-      const locationFilter = companyFilter(activeCompany, { status: "aktif", ...(employee.cabang_id ? { cabang_id: employee.cabang_id } : {}) });
+      const locationFilter = companyFilter(activeCompany, { status: "aktif" });
       const [todayList, history, points] = await Promise.all([
         base44.entities.Absensi.filter({ ...attendanceFilter,
           tanggal: getWibDateString(),
@@ -249,7 +249,14 @@ export default function Absensi() {
         (history || []).filter((item) => item.karyawan_id === employee.id)
       );
 
-      setTitikAbsensi(points || []);
+      setTitikAbsensi(
+        (points || []).filter(
+          (point) =>
+            !point.cabang_id ||
+            !employee.cabang_id ||
+            point.cabang_id === employee.cabang_id
+        )
+      );
     } catch (e) {
       console.error("loadData error:", e);
 
