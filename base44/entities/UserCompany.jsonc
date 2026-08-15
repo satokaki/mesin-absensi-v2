@@ -15,7 +15,12 @@
       "enum": ["aktif", "nonaktif"],
       "default": "aktif"
     },
-    "is_default": { "type": "boolean", "default": false }
+    "is_default": { "type": "boolean", "default": false },
+    "menu_permissions": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Daftar key menu yang dapat diakses user pada perusahaan ini"
+    }
   },
   "required": ["user_id", "company_id", "role", "status"]
 }
